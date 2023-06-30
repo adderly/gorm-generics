@@ -2,13 +2,14 @@ package gorm_generics_test
 
 import (
 	"context"
-	gorm_generics "github.com/ompluscator/gorm-generics"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 	"log"
 	"os"
 	"testing"
+
+	gorm_generics "github.com/adderly/gorm-generics"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 // Product is a domain entity
