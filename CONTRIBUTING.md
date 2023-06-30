@@ -34,10 +34,10 @@ To submit a change:
    3. We have PR template to help you describe the changes been made
 
 ### Raising Issues
-We would love your feedback whether there is a bug in a version of the code, share potential enhancements or ask questions, please raise a [GitHub Issue](https://github.com/Ompluscator/gorm-generics/issues)
+We would love your feedback whether there is a bug in a version of the code, share potential enhancements or ask questions, please raise a [GitHub Issue](https://github.com/adderly/gorm-generics/issues)
 
 When raising an issue please provide as much information as you possibly can in order for us to help you quicker.
 
 ## Code of Conduct
 We take our open source community seriously. We hold ourselves and other contributors to high standards of communication.
-By contributing to this project, you agree to uphold our [Code of Conduct](https://github.com/Ompluscator/gorm-generics/blob/master/CODE-OF-CONDUCT.md)
+By contributing to this project, you agree to uphold our [Code of Conduct](https://github.com/adderly/gorm-generics/blob/master/CODE-OF-CONDUCT.md)
