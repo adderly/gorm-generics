@@ -2,6 +2,7 @@ package gorm_generics
 
 import (
 	"context"
+
 	"gorm.io/gorm"
 )
 
@@ -113,4 +114,23 @@ func (r *GormRepository[M, E]) FindWithLimit(ctx context.Context, limit int, off
 
 func (r *GormRepository[M, E]) FindAll(ctx context.Context) ([]E, error) {
 	return r.FindWithLimit(ctx, -1, -1)
+}
+
+func (r *GormRepository[M, E]) FindByEntity(ctx context.Context, e any) ([]E, error) {
+	var models []M
+	result := r.db.Where(&e).Find(&models)
+	return r.FromModelToDto(models), result.Error
+}
+
+func (r *GormRepository[M, E]) FromModelToDto(models []M) []E {
+	result := make([]E, 0, len(models))
+
+	if len(models) == 0 {
+		return result
+	}
+
+	for _, row := range models {
+		result = append(result, row.ToEntity())
+	}
+	return result
 }
