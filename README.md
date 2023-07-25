@@ -25,7 +25,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/ompluscator/gorm-generics"
+	"github.com/adderly/gorm-generics"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
