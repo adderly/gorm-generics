@@ -13,6 +13,9 @@ In this stage, it is not meant to be used for production system.
 Future development is the intention for this project,
 and any contribution is more than welcome.
 
+TODO: Improve the interface for only specifying a Model and the DTO in generated automatically.
+https://github.com/viant/xunsafe
+
 ## Example
 ```go
 package main
