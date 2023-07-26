@@ -118,7 +118,7 @@ func (r *GormRepository[M, E]) FindAll(ctx context.Context) ([]E, error) {
 
 func (r *GormRepository[M, E]) FindByEntity(ctx context.Context, e any) ([]E, error) {
 	var models []M
-	result := r.db.Where(&e).Find(&models)
+	result := r.db.Where(e).Find(&models)
 	return r.FromModelToDto(models), result.Error
 }
 
