@@ -34,6 +34,26 @@ func (r *GormRepository[M, E]) Insert(ctx context.Context, entity *E) error {
 	return nil
 }
 
+func (r *GormRepository[M, E]) InsertDirect(ctx context.Context, entity *M) error {
+	err := r.db.WithContext(ctx).Create(&entity).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *GormRepository[M, E]) InsertFromInterface(ctx context.Context, data interface{}) error {
+	// var entity M
+	// testData := map[string]interface{}{
+	// 	"Name": "jinzhu",
+	// }
+	err := r.db.WithContext(ctx).Create(&data).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *GormRepository[M, E]) Delete(ctx context.Context, entity *E) error {
 	var start M
 	model := start.FromEntity(*entity).(M)
@@ -64,6 +84,14 @@ func (r *GormRepository[M, E]) Update(ctx context.Context, entity *E) error {
 	}
 
 	*entity = model.ToEntity()
+	return nil
+}
+
+func (r *GormRepository[M, E]) UpdateDirect(ctx context.Context, entity *M) error {
+	err := r.db.WithContext(ctx).Save(&entity).Error
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
