@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type GormModel[E any] interface {
@@ -43,10 +44,7 @@ func (r *GormRepository[M, E]) InsertDirect(ctx context.Context, entity *M) erro
 }
 
 func (r *GormRepository[M, E]) InsertFromInterface(ctx context.Context, data interface{}) error {
-	// var entity M
-	// testData := map[string]interface{}{
-	// 	"Name": "jinzhu",
-	// }
+
 	err := r.db.WithContext(ctx).Create(&data).Error
 	if err != nil {
 		return err
@@ -105,6 +103,16 @@ func (r *GormRepository[M, E]) FindByID(ctx context.Context, id any) (E, error) 
 	return model.ToEntity(), nil
 }
 
+func (r *GormRepository[M, E]) FindByIDWithOptions(ctx context.Context, id any, eagerLoad bool) (E, error) {
+	var model M
+	err := r.db.WithContext(ctx).Preload(clause.Associations).First(&model, id).Error
+	if err != nil {
+		return *new(E), err
+	}
+
+	return model.ToEntity(), nil
+}
+
 func (r *GormRepository[M, E]) Find(ctx context.Context, specifications ...Specification) ([]E, error) {
 	return r.FindWithLimit(ctx, -1, -1, specifications...)
 }
@@ -147,6 +155,12 @@ func (r *GormRepository[M, E]) FindAll(ctx context.Context) ([]E, error) {
 func (r *GormRepository[M, E]) FindByEntity(ctx context.Context, e any) ([]E, error) {
 	var models []M
 	result := r.db.Where(e).Find(&models)
+	return r.FromModelToDto(models), result.Error
+}
+
+func (r *GormRepository[M, E]) FindByEntityWithOptions(ctx context.Context, e any, eagerLoad bool) ([]E, error) {
+	var models []M
+	result := r.db.Where(e).Preload(clause.Associations).Find(&models)
 	return r.FromModelToDto(models), result.Error
 }
 
