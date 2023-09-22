@@ -44,7 +44,6 @@ func (r *GormRepository[M, E]) InsertDirect(ctx context.Context, entity *M) erro
 }
 
 func (r *GormRepository[M, E]) InsertFromInterface(ctx context.Context, data interface{}) error {
-
 	err := r.db.WithContext(ctx).Create(&data).Error
 	if err != nil {
 		return err
@@ -113,6 +112,16 @@ func (r *GormRepository[M, E]) FindByIDWithOptions(ctx context.Context, id any, 
 	return model.ToEntity(), nil
 }
 
+func (r *GormRepository[M, E]) FindByModel(ctx context.Context, entity *M) (M, error) {
+	var model M
+	err := r.db.WithContext(ctx).Preload(clause.Associations).Where(entity).First(&model).Error
+	if err != nil {
+		return *new(M), err
+	}
+
+	return model, err
+}
+
 func (r *GormRepository[M, E]) Find(ctx context.Context, specifications ...Specification) ([]E, error) {
 	return r.FindWithLimit(ctx, -1, -1, specifications...)
 }
@@ -130,6 +139,7 @@ func (r *GormRepository[M, E]) getPreWarmDbForSelect(ctx context.Context, specif
 	}
 	return dbPrewarm
 }
+
 func (r *GormRepository[M, E]) FindWithLimit(ctx context.Context, limit int, offset int, specifications ...Specification) ([]E, error) {
 	var models []M
 
