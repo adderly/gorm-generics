@@ -28,6 +28,7 @@ func MapDto[M GormModel[E], E any, T any](modelArray []M, dtoType T) []T {
 	})
 }
 
+// Maps a type to another using a function for transforming the data
 func Map[T, U any](ts []T, f func(T) U) []U {
 	us := make([]U, len(ts))
 	for i := range ts {
