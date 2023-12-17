@@ -1,6 +1,6 @@
 module github.com/adderly/gorm-generics
 
-go 1.18
+go 1.21
 
 require (
 	gorm.io/driver/sqlite v1.4.3
