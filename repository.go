@@ -122,6 +122,16 @@ func (r *GormRepository[M, E]) FindByModel(ctx context.Context, entity *M) (M, e
 	return model, err
 }
 
+func (r *GormRepository[M, E]) FindByModelMulti(ctx context.Context, entity *M) ([]M, error) {
+	var models []M
+
+	result := r.db.Where(&entity).Find(&models)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return models, nil
+}
+
 func (r *GormRepository[M, E]) Find(ctx context.Context, specifications ...Specification) ([]E, error) {
 	return r.FindWithLimit(ctx, -1, -1, specifications...)
 }
@@ -164,7 +174,7 @@ func (r *GormRepository[M, E]) FindAll(ctx context.Context) ([]E, error) {
 
 func (r *GormRepository[M, E]) FindByEntity(ctx context.Context, e any) ([]E, error) {
 	var models []M
-	result := r.db.Where(e).Find(&models)
+	result := r.db.Where(&e).Find(&models)
 	return r.FromModelToDto(models), result.Error
 }
 
