@@ -199,8 +199,14 @@ func (r *GormRepository[M, E]) FindPagedWithLimit(ctx context.Context, pageCfg P
 		Page:  pageCfg.Page,
 	}
 
-	minLimit := math.Max(1, float64(pageCfg.Size))
+	var offset int
+	limit := math.Max(1, float64(pageCfg.Size))
 	shouldCount := pageCfg.ForceCount || (pageCfg.Page == 0 && !pageCfg.IgnoreCount)
+
+	//Our first page is 0
+	if pageCfg.Page >= 1 {
+		offset = pageCfg.Page * int(limit)
+	}
 
 	if shouldCount {
 		model := new(M)
@@ -211,10 +217,10 @@ func (r *GormRepository[M, E]) FindPagedWithLimit(ctx context.Context, pageCfg P
 		if er.Error != nil {
 			return rs, er.Error
 		}
-		rs.Count = int64(math.Ceil(float64(elementCount) / float64(minLimit)))
+		rs.Count = int64(math.Ceil(float64(elementCount) / float64(limit)))
 	}
 
-	err := dbPrewarm.Limit(int(minLimit)).Offset(pageCfg.Page).Find(&models).Error
+	err := dbPrewarm.Limit(int(limit)).Offset(offset).Find(&models).Error
 
 	if err != nil {
 		return rs, err
