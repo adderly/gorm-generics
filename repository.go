@@ -108,6 +108,13 @@ func (r *GormRepository[M, E]) UpdateDirect(ctx context.Context, entity *M) erro
 	}
 	return nil
 }
+func (r *GormRepository[M, E]) UpdateDirectMulti(ctx context.Context, entity []M) error {
+	err := r.db.WithContext(ctx).Save(&entity).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 func (r *GormRepository[M, E]) FindByID(ctx context.Context, id any) (E, error) {
 	var model M
