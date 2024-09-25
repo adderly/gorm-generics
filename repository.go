@@ -8,12 +8,14 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type GormModel[E any] interface {
-	ToEntity() E
-	FromEntity(entity E) interface{}
+//E = Dto
+//M = Model Struct
+type GormModel[E any, M any] interface {
+	ToDto() E
+	ToModel(entity E) M
 }
 
-type PageResult[M GormModel[E], E any] struct {
+type PageResult[M GormModel[E, M], E any] struct {
 	Data  []M   `json:"data"`
 	Count int64 `json:"count"`
 	Page  int   `json:"page"`
@@ -29,26 +31,26 @@ type PageConfig struct {
 	ForceCount bool `json:"ForceCount"`
 }
 
-func NewRepository[M GormModel[E], E any](db *gorm.DB) *GormRepository[M, E] {
+func NewRepository[M GormModel[E, M], E any](db *gorm.DB) *GormRepository[M, E] {
 	return &GormRepository[M, E]{
 		db: db,
 	}
 }
 
-type GormRepository[M GormModel[E], E any] struct {
+type GormRepository[M GormModel[E, M], E any] struct {
 	db *gorm.DB
 }
 
 func (r *GormRepository[M, E]) Insert(ctx context.Context, entity *E) error {
 	var start M
-	model := start.FromEntity(*entity).(M)
+	model := start.ToModel(*entity)
 
 	err := r.db.WithContext(ctx).Create(&model).Error
 	if err != nil {
 		return err
 	}
 
-	*entity = model.ToEntity()
+	*entity = model.ToDto()
 	return nil
 }
 
@@ -70,7 +72,7 @@ func (r *GormRepository[M, E]) InsertFromInterface(ctx context.Context, data int
 
 func (r *GormRepository[M, E]) Delete(ctx context.Context, entity *E) error {
 	var start M
-	model := start.FromEntity(*entity).(M)
+	model := start.ToModel(*entity)
 	err := r.db.WithContext(ctx).Delete(model).Error
 	if err != nil {
 		return err
@@ -90,14 +92,14 @@ func (r *GormRepository[M, E]) DeleteById(ctx context.Context, id any) error {
 
 func (r *GormRepository[M, E]) Update(ctx context.Context, entity *E) error {
 	var start M
-	model := start.FromEntity(*entity).(M)
+	model := start.ToModel(*entity)
 
 	err := r.db.WithContext(ctx).Save(&model).Error
 	if err != nil {
 		return err
 	}
 
-	*entity = model.ToEntity()
+	*entity = model.ToDto()
 	return nil
 }
 
@@ -123,7 +125,7 @@ func (r *GormRepository[M, E]) FindByID(ctx context.Context, id any) (E, error) 
 		return *new(E), err
 	}
 
-	return model.ToEntity(), nil
+	return model.ToDto(), nil
 }
 
 func (r *GormRepository[M, E]) FindByIDWithOptions(ctx context.Context, id any, eagerLoad bool) (E, error) {
@@ -133,7 +135,7 @@ func (r *GormRepository[M, E]) FindByIDWithOptions(ctx context.Context, id any, 
 		return *new(E), err
 	}
 
-	return model.ToEntity(), nil
+	return model.ToDto(), nil
 }
 
 func (r *GormRepository[M, E]) FindByModel(ctx context.Context, entity *M) (M, error) {
@@ -144,6 +146,17 @@ func (r *GormRepository[M, E]) FindByModel(ctx context.Context, entity *M) (M, e
 	}
 
 	return model, err
+}
+
+
+func (r *GormRepository[M, E]) FindToDto(ctx context.Context, entity *M) (E, error) {
+	var model M
+	err := r.db.WithContext(ctx).Preload(clause.Associations).Where(entity).First(&model).Error
+	if err != nil {
+		return *new(E), err
+	}
+
+	return model.ToDto(), err
 }
 
 func (r *GormRepository[M, E]) FindByModelMulti(ctx context.Context, entity *M) ([]M, error) {
@@ -190,7 +203,7 @@ func (r *GormRepository[M, E]) FindWithLimit(ctx context.Context, limit int, off
 
 	result := make([]E, 0, len(models))
 	for _, row := range models {
-		result = append(result, row.ToEntity())
+		result = append(result, row.ToDto())
 	}
 
 	return result, nil
@@ -266,7 +279,7 @@ func (r *GormRepository[M, E]) FromModelToDto(models []M) []E {
 	}
 
 	for _, row := range models {
-		result = append(result, row.ToEntity())
+		result = append(result, row.ToDto())
 	}
 	return result
 }

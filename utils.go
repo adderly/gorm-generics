@@ -17,9 +17,9 @@ func ChunkSlice[T any](slice []T, chunkSize int) [][]T {
 	return chunks
 }
 
-func MapDto[M GormModel[E], E any, T any](modelArray []M, dtoType T) []T {
+func MapDto[M GormModel[T, M],T any](modelArray []M, dtoType T) []T {
 	return Map(modelArray, func(ce M) T {
-		et := ce.ToEntity()
+		et := ce.ToDto()
 		etCasted, ok := any(et).(T)
 		if !ok {
 			return *new(T)

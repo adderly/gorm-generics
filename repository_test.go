@@ -30,7 +30,7 @@ type ProductGorm struct {
 
 // ToEntity respects the gorm_generics.GormModel interface
 // Creates new Entity from GORM model.
-func (g ProductGorm) ToEntity() Product {
+func (g ProductGorm) ToDto() Product {
 	return Product{
 		ID:          g.ID,
 		Name:        g.Name,
@@ -41,7 +41,7 @@ func (g ProductGorm) ToEntity() Product {
 
 // FromEntity respects the gorm_generics.GormModel interface
 // Creates new GORM model from Entity.
-func (g ProductGorm) FromEntity(product Product) interface{} {
+func (g ProductGorm) ToModel(product Product) ProductGorm {
 	return ProductGorm{
 		ID:          product.ID,
 		Name:        product.Name,
